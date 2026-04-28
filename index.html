@@ -263,7 +263,6 @@ code{font-family:'Courier New',monospace;font-size:.76rem;color:var(--g6);backgr
     <button onclick="goPage('sim')" id="nb-sim" class="hs">Simulador IA</button>
     <button onclick="goPage('eval')" id="nb-eval" class="hs">Evaluación</button>
     <button onclick="goPage('api')" id="nb-api" class="hs">API</button>
-    <button onclick="showKeyModal()" id="key-btn" style="background:rgba(247,201,72,.12);color:#f7c948;border:1px solid rgba(247,201,72,.25);border-radius:var(--rs);padding:.4rem .78rem;font-size:.75rem;font-weight:600;cursor:pointer;font-family:var(--fb);margin-left:.25rem">⚙ API Key</button>
     <button onclick="goPage('sim')" class="ncta">Friction Chamber →</button>
   </div>
 </nav>
@@ -276,13 +275,13 @@ code{font-family:'Courier New',monospace;font-size:.76rem;color:var(--g6);backgr
       <div class="s1l">
         <div><div class="s1logo">MODO</div><div class="s1sub">CX Training Center</div></div>
         <div style="font-size:3rem">🎯</div>
-        <div style="font-size:.8rem;color:rgba(245,243,238,.58);line-height:1.7">Una herramienta de IA para que los Moders practiquen y mejoren antes de atender contactos reales.</div>
+        <div style="font-size:.8rem;color:rgba(245,243,238,.58);line-height:1.7">Proyecto surgido de la Hackathon interna de MODO × APEX Córdoba. IA para entrenar a los Moders antes de atender contactos reales.</div>
       </div>
       <div class="s1r">
         <div class="chip">Plataforma de</div>
         <h1 class="s1t">Entrenamiento<br><em>CX</em></h1>
         <div class="s1a">APEX Córdoba — MODO · 2025</div>
-        <p class="s1b">Una herramienta de IA para que los Moders practiquen y mejoren antes de atender contactos reales. Entrenamiento inmersivo, evaluación automática y cultura CX sostenible.</p>
+        <p class="s1b">Simulador de IA con 8 perfiles reales de usuarios y comercios, evaluación automática con los 6 criterios de calidad de MODO, y arquitectura lista para producción con JumpCloud SSO y Warp/ZTNA.</p>
       </div>
     </div>
   </div>
@@ -454,7 +453,7 @@ code{font-family:'Courier New',monospace;font-size:.76rem;color:var(--g6);backgr
       </div>
       <div class="evalnote" id="evalnote">Al finalizar cada sesión, la IA evalúa al agente en 6 criterios — los mismos que usa el equipo de calidad de MODO.</div>
       <div class="evalact">
-        <button class="bsim" onclick="if(sessMsgs.length>=2){endSession();}else{goPage('sim');document.getElementById('smsgs').innerHTML='<div class=\'bw\'><div class=\'bn\'>Sistema</div><div class=\'bb bot\'>Completá una sesión en el simulador y presioná Finalizar y Evaluar.</div></div>';}">Evaluar mi sesión con IA →</button>
+        <button class="bsim" onclick="goPage('sim');alert('Completá una sesión en el simulador y presioná Finalizar y Evaluar')">Evaluar mi sesión con IA →</button>
         <button class="bout" onclick="goPage('sim')">Volver al simulador</button>
       </div>
     </div>
@@ -599,133 +598,35 @@ function buildSimTabs(){const t=document.getElementById('simtabs');t.innerHTML='
 function loadProfile(id){const all=[...PROFILES.usuarios,...PROFILES.comercios];simProf=all.find(p=>p.id===id);em=30;re=20;te=simProf.tension;sessMsgs=[];applyM();document.getElementById('smsgs').innerHTML=`<div class="bw"><div class="bn">${simProf.name} — ${simProf.badge}</div><div class="bb bot">${simProf.init}</div></div>`;document.getElementById('scdesc').textContent=simProf.desc+' · Tensión inicial: '+simProf.tension+'%';buildSimTabs();}
 function applyM(){setM('em',em,'#6fcf97');setM('re',re,'#f7c948');setM('te',te,te>65?'#e05252':te>40?'#f7c948':'#6fcf97');}
 function setM(id,v,c){document.getElementById('m-'+id).style.cssText=`width:${v}%;background:${c}`;const el=document.getElementById('mv-'+id);el.textContent=v;el.style.color=c;}
-/* ══ API KEY MANAGER ══ */
-let _apiKey = sessionStorage.getItem('modo_cx_key') || '';
-
-function getKey(){return _apiKey;}
-
-function showKeyModal(onSuccess){
-  const existing = document.getElementById('key-modal');
-  if(existing) existing.remove();
-  const m = document.createElement('div');
-  m.id = 'key-modal';
-  m.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(6,26,13,.88);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;';
-  m.innerHTML=`
-    <div style="background:#0d2e18;border:1px solid rgba(111,207,151,.25);border-radius:12px;padding:2rem 2.25rem;width:min(460px,92vw);box-shadow:0 32px 80px rgba(0,0,0,.6)">
-      <div style="font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#6fcf97;margin-bottom:.6rem">Configuración</div>
-      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;margin-bottom:.4rem">API Key de Anthropic</div>
-      <p style="font-size:.8rem;color:rgba(245,243,238,.6);line-height:1.65;margin-bottom:1.4rem">Para usar el simulador necesitás una API key de Anthropic. Se guarda solo en esta sesión del navegador — nunca se envía a ningún servidor externo.</p>
-      <input id="key-input" type="password" placeholder="sk-ant-api03-..." style="width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(111,207,151,.2);border-radius:6px;padding:.65rem 1rem;color:#f5f3ee;font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;margin-bottom:.5rem" />
-      <div id="key-error" style="font-size:.75rem;color:#e05252;min-height:1.2rem;margin-bottom:.85rem"></div>
-      <div style="display:flex;gap:.65rem">
-        <button id="key-confirm" style="flex:1;background:#6fcf97;color:#061a0d;border:none;border-radius:6px;padding:.65rem;font-weight:700;font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif">Confirmar y continuar</button>
-        <button onclick="document.getElementById('key-modal').remove()" style="background:transparent;color:rgba(245,243,238,.5);border:1px solid rgba(245,243,238,.15);border-radius:6px;padding:.65rem 1rem;font-size:.82rem;cursor:pointer;font-family:'DM Sans',sans-serif">Cancelar</button>
-      </div>
-      <p style="font-size:.72rem;color:rgba(245,243,238,.3);margin-top:1rem;line-height:1.5">Obtené tu key en <strong style="color:rgba(245,243,238,.5)">console.anthropic.com → API Keys</strong>. La key empieza con <code style="color:#6fcf97">sk-ant-</code>.</p>
-    </div>`;
-  document.body.appendChild(m);
-  const inp = m.querySelector('#key-input');
-  inp.focus();
-  m.querySelector('#key-confirm').onclick = async ()=>{
-    const val = inp.value.trim();
-    if(!val.startsWith('sk-ant-') && !val.startsWith('sk-')){
-      m.querySelector('#key-error').textContent='La key debe empezar con sk-ant- o sk-';return;
-    }
-    m.querySelector('#key-error').textContent='Verificando…';
-    const ok = await testKey(val);
-    if(ok){
-      _apiKey=val;
-      sessionStorage.setItem('modo_cx_key',val);
-      m.remove();
-      if(onSuccess) onSuccess();
-    } else {
-      m.querySelector('#key-error').textContent='Key inválida o sin créditos. Verificá en console.anthropic.com';
-    }
-  };
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter')m.querySelector('#key-confirm').click();});
-}
-
-async function testKey(key){
-  try{
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:10,messages:[{role:'user',content:'ok'}]})
-    });
-    const d = await r.json();
-    return !d.error;
-  }catch(e){return false;}
-}
-
-async function callClaude(payload, onNoKey){
-  if(!getKey()){showKeyModal(onNoKey);return null;}
-  try{
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':getKey(),'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify(payload)
-    });
-    const d = await r.json();
-    if(d.error){
-      if(d.error.type==='authentication_error'){
-        _apiKey='';sessionStorage.removeItem('modo_cx_key');
-        showKeyModal(onNoKey);
-        return null;
-      }
-      throw new Error(d.error.message);
-    }
-    return d;
-  }catch(e){throw e;}
-}
-
-/* ══ SIMULATOR ══ */
 async function sendMsg(){
   if(!simProf){alert('Seleccioná un perfil primero');return;}
-  const inp=document.getElementById('simin');const msg=inp.value.trim();if(!msg)return;
-
-  if(!getKey()){
-    showKeyModal(()=>{ inp.value=msg; sendMsg(); });
-    return;
-  }
-
-  inp.value='';
+  const inp=document.getElementById('simin');const msg=inp.value.trim();if(!msg)return;inp.value='';
   const btn=document.getElementById('sbtn');btn.disabled=true;
   const msgs=document.getElementById('smsgs');
   msgs.innerHTML+=`<div class="bw u"><div class="bn">Moder CX</div><div class="bb usr">${msg}</div></div>`;
   msgs.innerHTML+=`<div class="bw" id="loading"><div class="bn">${simProf.name}</div><div class="bb bot"><span class="dots"><span>·</span><span>·</span><span>·</span></span></div></div>`;
   msgs.scrollTop=msgs.scrollHeight;
   sessMsgs.push({role:'user',content:msg});
-
   const sys=simProf.sys+` Respondé en español rioplatense, máximo 3 oraciones. Al final (nueva línea) incluí SOLO este JSON: {"empatia":N,"resolucion":N,"tension":N} — valores 0-100. Buena empatía: empatia+15a+25, resolucion+10a+20, tension-10a-20. Respuesta genérica: sin cambio positivo, tension+5.`;
-
   try{
-    const data = await callClaude({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:sessMsgs},()=>{sessMsgs.pop();inp.value=msg;btn.disabled=false;document.getElementById('loading')?.remove();});
-    if(!data){btn.disabled=false;return;}
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:sessMsgs})});
+    const data=await resp.json();
     const full=data.content[0].text;
     const jm=full.match(/\{[^}]+\}/);const aiText=full.replace(/\{[^}]+\}/,'').trim();
     sessMsgs.push({role:'assistant',content:aiText});
     if(jm){try{const d=JSON.parse(jm[0]);em=Math.max(0,Math.min(100,d.empatia));re=Math.max(0,Math.min(100,d.resolucion));te=Math.max(0,Math.min(100,d.tension));applyM();document.getElementById('simtip').innerHTML=TIPS[Math.floor(Math.random()*TIPS.length)];}catch(e){}}
-    const loadEl=document.getElementById('loading');
-    if(loadEl)loadEl.querySelector('.bb').textContent=aiText;
+    document.getElementById('loading').querySelector('.bb').textContent=aiText;
     msgs.scrollTop=msgs.scrollHeight;
-  }catch(err){
-    const loadEl=document.getElementById('loading');
-    if(loadEl)loadEl.querySelector('.bb').textContent='No se pudo conectar. Revisá tu conexión e intentá de nuevo.';
-  }
+  }catch(err){document.getElementById('loading').querySelector('.bb').textContent='Error de conexión. Verificá tu API key.';}
   btn.disabled=false;
 }
-
 async function endSession(){
   if(!simProf||sessMsgs.length<2){alert('Completá al menos un intercambio antes de evaluar.');return;}
-
-  if(!getKey()){showKeyModal(()=>endSession());return;}
-
   goPage('eval');
   document.getElementById('evsc').textContent='…';
-  document.getElementById('evsess').textContent='Evaluando…';
+  document.getElementById('evsess').textContent='Evaluando sesión…';
   document.getElementById('evalnote').textContent='La IA está analizando tu sesión…';
   renderCrit([{n:'Completeness',v:0,c:'#6fcf97'},{n:'Actitudinal',v:0,c:'#6fcf97'},{n:'Voz y tono MODO',v:0,c:'#6fcf97'},{n:'Estructura del mensaje',v:0,c:'#f7c948'},{n:'Conversacional',v:0,c:'#6fcf97'},{n:'Liderazgo de contacto',v:0,c:'#f7c948'}]);
-
   const pr=`Sos el sistema de evaluación de calidad de MODO (fintech argentina).
 Evaluá esta conversación entre un Moder CX y el perfil simulado: ${simProf.name} — ${simProf.badge}.
 
@@ -742,10 +643,9 @@ Evaluá al Moder en los 6 criterios de MODO (0-10 cada uno):
 
 Respondé SOLO con este JSON (sin texto extra ni markdown):
 {"completeness":N,"actitudinal":N,"voz_tono":N,"estructura":N,"conversacional":N,"liderazgo":N,"feedback":"2 oraciones de retroalimentación específica"}`;
-
   try{
-    const data = await callClaude({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:pr}]},()=>endSession());
-    if(!data){document.getElementById('evalnote').textContent='Configurá tu API key para evaluar.';return;}
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:pr}]})});
+    const data=await resp.json();
     const txt=data.content[0].text.replace(/```json|```/g,'').trim();
     const r=JSON.parse(txt);
     const total=Math.round((r.completeness+r.actitudinal+r.voz_tono+r.estructura+r.conversacional+r.liderazgo)/6*10);
@@ -754,9 +654,7 @@ Respondé SOLO con este JSON (sin texto extra ni markdown):
     document.getElementById('evalnote').textContent=r.feedback;
     const tc=v=>v>=8?'#6fcf97':v>=6?'#f7c948':'#e05252';
     renderCrit([{n:'Completeness',v:r.completeness,c:tc(r.completeness)},{n:'Actitudinal',v:r.actitudinal,c:tc(r.actitudinal)},{n:'Voz y tono MODO',v:r.voz_tono,c:tc(r.voz_tono)},{n:'Estructura del mensaje',v:r.estructura,c:tc(r.estructura)},{n:'Conversacional',v:r.conversacional,c:tc(r.conversacional)},{n:'Liderazgo de contacto',v:r.liderazgo,c:tc(r.liderazgo)}]);
-  }catch(e){
-    document.getElementById('evalnote').textContent='Error al procesar la evaluación. Intentá de nuevo.';
-  }
+  }catch(e){document.getElementById('evalnote').textContent='Error al evaluar. Intentá de nuevo desde el simulador.';}
 }
 
 /* EVAL */
